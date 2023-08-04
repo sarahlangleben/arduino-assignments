@@ -1,0 +1,120 @@
+#include <string>
+int buttonState = 0;
+int lastButtonState = 0;
+int startPressed = 0;
+int endPressed = 0;
+int holdTime = 0;
+int idleTime = 0;
+int count = 0;
+const int buttonPin = 21;
+String morse_code[6] = {""};
+void setup() {
+    pinMode(buttonPin, INPUT);
+    //char morse_code[6]; //array to store pattern
+    Serial.begin(9600);
+}
+void loop() {
+  buttonState = digitalRead(buttonPin);
+  if(buttonState != lastButtonState){
+    updateState();
+  }
+  lastButtonState = buttonState;
+}
+
+void updateState(){
+  if(count == 5){
+    //call translator method here
+    Serial.println(morse_code[1]+","+morse_code[2]+","+morse_code[3]+","+morse_code[4]+","+morse_code[5]+","+morse_code[6]);
+    translate(morse_code);
+    count = 0;
+    morse_code[6] = {""};
+  }
+  if(buttonState == LOW){
+    startPressed = millis();
+    idleTime = startPressed - endPressed;
+    if(idleTime >= 10000){
+      Serial.println("Resetting message");
+      count = 0;
+      morse_code[6] = {""};
+    }
+  }
+  else {
+    endPressed = millis();
+    holdTime = endPressed - startPressed;
+    if(holdTime >= 500 && holdTime < 1000){
+      count++;
+      Serial.println(count);
+      Serial.println("dot ");
+      morse_code[count] = "dot";
+    }
+    if(holdTime >= 1000){
+      count++;
+      Serial.println(count);
+      Serial.println("dash ");
+      morse_code[count] = "dash";
+    }
+  }
+}
+
+void translate(String arr[]){
+  int dotCount = 0;
+  int dashCount = 0;
+  if(arr[1].equals("dash") && arr[5].equals("dot")){
+    for(int i=0; i < 6; i++){
+      if(arr[i].equals("dot")){
+        dotCount++;
+      }
+    }
+  }
+  switch(dotCount){
+    case 4:
+      Serial.println("The message is six");
+      //call motor method
+      break;
+    case 3:
+      Serial.println("The message is seven");
+      //call motor method
+      break;
+    case 2:
+      Serial.println("The message is eight");
+      //call motor method
+      break;
+    case 1:
+      Serial.println("The message is nine");
+      //call motor method
+      break;
+  }
+  if(arr[1].equals("dot") && arr[5].equals("dash")){
+    for(int i=0; i < 6; i++){
+      if(arr[i].equals("dash")){
+        dashCount++;
+      }
+    }
+  }
+  switch(dashCount){
+    case 1:
+      Serial.println("The message is four");
+      //call motor method
+      break; 
+    case 2:
+      Serial.println("The message is three");
+      //call motor method
+      break;
+    case 3:
+      Serial.println("The message is two");
+      //call motor method
+      break;
+    case 4:
+      Serial.println("The message is one");
+      //call motor method
+      break;
+  }
+  if(arr[1].equals("dot") && arr[5].equals("dot")){
+    Serial.println("The message is five");
+    //motor function call
+  }
+  if(arr[1].equals("dash") && arr[5].equals("dash")){
+    Serial.println("The message is zero");
+    //motor function call 
+  }
+}
